@@ -6,6 +6,8 @@
 # modifier (mod) is the 'plus value' you add to skill checks or saving throws or whatnot
 # prof = proficiency (mostly because I can't spell proficiency)
 
+import dice
+
 abilities = ['str', 'dex', 'con', 'int', 'wis', 'cha']
 
 skills = {
@@ -97,12 +99,13 @@ class Character:
             self.init_ab_mods()
         if self.ab_scores is None:
             print(f"Can't calculate ability modifiers because abilities have not been set")
-            return
+            return False
         if any([v is None for v in self.ab_scores.values()]):
             print(f"ability scores are not set, can't calculate ability modifiers")
-            return
+            return False
         for ab, val in self.ab_scores.items():
             self.ab_mods[ab] = Character.score_to_mod(val)  # can static method return value?
+        return True
 
     def calc_saves(self):
         # use abilities modifiers, prof, & saving prof
@@ -128,18 +131,19 @@ class Character:
         # use prof bonus, prof skills,
         if self.prof_skills is None:
             print("Can't calculate skill modifiers because proficient skills have not been set")
-            return
+            return False
         if self.ab_mods is None:
             print(f"Can't calculate skill modifiers because ability modifiers have not be set")
-            return
+            return False
+        if self.skill_mods is None:
+            self.init_skill_mods()
         for s in skills:
             if s in self.prof_skills:
                 mod = self.prof_skills[s] * self.proficiency
             else:
-                mod = self.non_prof_mod
-            self.skill_mods[s] = self.ab_mods + mod
-
-        pass
+                mod = int(self.non_prof_mod * self.proficiency)
+            self.skill_mods[s] = self.ab_mods[skills[s]] + mod
+        return True
 
     # initializers
     def init_ab_scores(self):
@@ -220,12 +224,41 @@ class Character:
         if skill not in skills:
             print(f'The input {skill} is not valid.  Please use a valid skill, list located in characters.py')
             return
-        self.prof_skills[skill] = self.proficiency * prof_mul
+        self.prof_skills[skill] = prof_mul
 
     # things that all characters can do
-    def skill_check(self, skill, adv=False):
+    def skill_check(self, skill, die=dice.d20(), adv=False, dis=False):
         # takes the skill, checks skill mod for it, rolls with or without advantage
-        # some skill mods have double prof, not sure how to handle that
+        if self.ab_mods is None:
+            print("Ability modifiers haven't been set, trying to calculate those")
+            if self.calc_ab_mods() is False:
+                return None
+        if self.proficiency is None:
+            print(f"Proficiency isn't set, set character level which will automatically set proficiency")
+            return None
+        if self.prof_skills is None:
+            print("Can't skill check because proficient skills have not been set")
+            return None
+        if self.skill_mods is None:
+            # if we get this far everything should be good and this can run silently
+            if self.calc_skills() is False:
+                print("Error: skill mods are not set and could not be automatically set")
+                return None
+        if skill not in self.skill_mods:
+            print(f"{skill} not found in the skill modifiers")
+            return None
+
+        if adv:
+            return die.roll(adv=True) + self.skill_mods[skill]
+        if dis:
+            return die.roll(dis=False) + self.skill_mods[skill]
+        return die.roll() + self.skill_mods[skill]
+
+    def move(self, distance):
+        pass
+
+    def attack(self, weapon, creature):
+        # not sure how to handle attacking (and honestly I'm a little bunt out rn)
         pass
 
     # character description
@@ -241,7 +274,10 @@ class Character:
 
     def say_skill_mods(self):
         if self.skill_mods is None:
-            print('skill modifiers are not set')
+            print("Error: Skill modifiers are not set, trying to automatically calculate them")
+            if self.calc_skills() is False:
+                print("Couldn't automatically calculate skill mods")
+                return
         for s,v in self.skill_mods.items():
             print(f'{s}: {v}')
 

@@ -7,8 +7,17 @@ class Dice:
     def __init__(self, sides):
         self.sides = sides
 
-    def roll(self):
-        return(random.randint(1, self.sides))
+    def roll(self, adv=False, dis=False):
+        if adv:
+            r = max(random.randint(1, self.sides), random.randint(1, self.sides))
+        elif dis:
+            r =  min(random.randint(1, self.sides), random.randint(1, self.sides))
+        else:
+            r =  random.randint(1, self.sides)
+        if r == 20:
+            print("Nat 20!")
+        return r
+
 
     def roll_indiv(self, number_of_dice):
         r = list()

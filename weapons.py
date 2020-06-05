@@ -26,6 +26,11 @@ class Weapon:
         self.ab_mod_type = kwargs.get('ab_mod_type', None)
 
     def attack(self, am_mod, prof, target_range, **kwargs):
+        # attack needs to be able to handle all the special stuff, not sure how to do that
+        # okay, what needs to be done?
+        # some attacks need to be specified in kind (thrown vs swung)
+        # some attacks require two hand
+        # some weapons require str
         pass
 
 

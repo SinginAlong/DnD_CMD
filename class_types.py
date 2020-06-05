@@ -32,6 +32,7 @@ class Bard(pt.Character):
                               class_type="Bard",
                               hitdice=dice.d8(),
                               prof_saves={'dex': 1, 'cha': 1},
+                              non_prof_mod=0.5,
                               cantrips_by_lvl={1: 2, 2: 2, 3: 2, 4: 3, 5: 3, 6: 3, 7: 3, 8: 3, 9: 3, 10: 4, 11: 4,
                                                12: 4, 13: 4, 14: 4, 15: 4, 16: 4, 17: 4, 18: 4, 19: 4, 20: 4},
                               spells_by_lvl=caster_spell_slots,
