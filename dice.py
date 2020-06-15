@@ -1,6 +1,7 @@
 # for defining dice
 
 import random
+import re
 
 # prototype dice
 class Dice:
@@ -11,13 +12,12 @@ class Dice:
         if adv:
             r = max(random.randint(1, self.sides), random.randint(1, self.sides))
         elif dis:
-            r =  min(random.randint(1, self.sides), random.randint(1, self.sides))
+            r = min(random.randint(1, self.sides), random.randint(1, self.sides))
         else:
-            r =  random.randint(1, self.sides)
+            r = random.randint(1, self.sides)
         if r == 20:
             print("Nat 20!")
         return r
-
 
     def roll_indiv(self, number_of_dice):
         r = list()
@@ -33,12 +33,6 @@ class Dice:
         d = self.roll_indiv(4)
         d.sort()
         return(sum(d[1:]))
-
-    def decode_dice(self, dice):
-        # XdYY
-        # where X is an integer from 1 to almost infinity
-        # YY is the dice type from 2, 4, 6, 8, 10, 12, 20
-        pass
 
 
 class d4(Dice):
@@ -69,3 +63,19 @@ class d12(Dice):
 class d20(Dice):
     def __init__(self):
         Dice.__init__(self, 20)
+
+
+def decode_dice(xdy):
+    # XdY, where X is the number of dice and Y is dice denomination
+    # where X is an integer from 1 to almost infinity
+    # YY is the dice type from 2, 4, 6, 8, 10, 12, 20
+
+    # check that the string matchs the requirements?
+    # pull the number of nice
+    # pull the dice order
+
+    num = int(re.search(r'\d+', xdy).group())
+    order = int(re.search(r'\d+$', xdy).group())
+
+    return sum([random.randint(1, order) for i in range(0, num)])
+
